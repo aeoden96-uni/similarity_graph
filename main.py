@@ -1,5 +1,15 @@
 import numpy as np
-import pandas as pd
+
+
+def find_word_id(word):
+    with open("examples/e00/index.txt",encoding= "ISO-8859-1") as f:
+        lines = f.readlines()
+
+        for i,line in enumerate(lines):
+            if word.rstrip() == line.rstrip():
+                return i+1
+
+        raise EOFError
 
 
 def load_matrix_from_file(filename):
@@ -39,7 +49,7 @@ def create_set_form_lines(lines, id):
         if  id == j:
             uniq.add(i)
 
-    print("set", len(uniq))
+
     return uniq
 
 
@@ -117,63 +127,78 @@ def load_for_word(ime_dat, rijec_id):
 
 def inter(limit, A, B):
     X = np.ones((B.shape[0], A.shape[0]))
-    if (limit < 1): raise ValueError
-    # X = np.ones((5, 3))
-    for i in range(limit):
-        i = B.dot(X).dot(A.transpose())
-        j = B.transpose().dot(X).dot(A)
-        X = i + j
+    past = X.copy()
+    if limit < 1: raise ValueError
+
+    for i in range(50):
+        i += 1
+        left_hand = B.dot(X).dot(A.transpose())
+        right_hand = B.transpose().dot(X).dot(A)
+        X = left_hand + right_hand
         norm = np.linalg.norm(X, 'fro')
         X = X / norm
 
-    return np.around(X, 4)
+        # print(i, np.around(X, 4)[0][0])
+        if i % 2 == 0:
+            if np.allclose(past, X, rtol=1e-05):
+                return np.around(X, 4)
+            past = X.copy()
+
 
 
 def main():
-    example = input("Koji primjer:(npr e01) ")
+    example = input("Example (etc 'e01'): ")
 
     if example == "e00":
-        # id = int(input("Id rijeci: "))
-        id = 87802
+        id = find_word_id(input("Word: "))
+        #print("ID",id)
+        print("Word OK")
+
+
+        # id = 87802
 
         dim, index, pairs = load_for_word("examples/" + example + "/dico.txt",
                                           id)
 
-        print(pairs)
+        # print(pairs)
 
         A = load_matrix(dim, pairs)
-        B = load_matrix_from_file("B.txt")
+        B = load_matrix_from_file("examples/e00/B.txt")
 
         # print("Korijen sume kvadrata elemenata", np.sqrt(np.sum(np.square(p))))
-        p = inter(40, A, B)[1]
+        p = inter(41, A, B)[1]
 
         results = []
 
         keywords = ["the" , "or" ,"a" , "in" , "to" , "of" ,"which",
-                    "and","as","with", "for","any","it"]
+                    "and","as","with", "for","any","it","by", "is","are","than"]
 
         for i,l in enumerate(p):
             results.append((l, index[i]))
 
         results.sort(key=lambda x: x[0])
 
+        max = 10
         for i,k in results[::-1]:
             if k.rstrip() in keywords:
                 continue
-            print(i,k)
+            if max <= 0:
+                break
+            print(i,k, end="")
+            max -=1
 
 
     else:
-        itt = int(input("Broj iteracija: "))
+
 
         A = load_matrix_from_file("examples/" + example + "/A.txt")
         # print(A)
         B = load_matrix_from_file("examples/" + example + "/B.txt")
 
-        p = inter(itt,A,B)
+        p = inter(1,A,B)
 
         print(p)
-        print("Korijen sume kvadrata elemenata", np.sqrt(np.sum(np.square(p))))
+        # print("Korijen sume kvadrata elemenata", np.sqrt(np.sum(np.square(p))))
 
 
 
