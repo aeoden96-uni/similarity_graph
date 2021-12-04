@@ -2,184 +2,174 @@ import numpy as np
 import pandas as pd
 
 
-def ucitaj(ime_dat):
-    with open(ime_dat) as f:
+def load_matrix_from_file(filename):
+    with open(filename) as f:
+        pairs = []
         dim = int(f.readline())
-        matrix = np.zeros((dim,dim))
-        # print(dim)
         lines = f.readlines()
-
         for line in lines:
-            # print(line)
-            i,j = line.split()
-            i = int(i)-1
-            j =  int(j)-1
-            # print(i,j)
-            matrix[i][j] = 1
-        return matrix
-
-
-def find_unique(ime_dat,rijec_id):
-    with open(ime_dat) as f:
-        dim = int(f.readline())
-        uniq = set()
-
-        uniq.add(rijec_id)
-
-        lines = f.readlines()
-
-        for line in lines:
-            try:
-                i, j = line.split()
-            except:
-                continue
+            i, j = line.split()
             i = int(i)
             j = int(j)
-
-            if rijec_id == i:
-                uniq.add(j)
-            if rijec_id == j:
-                uniq.add(i)
-        # print(uniq)
-        return len(uniq)
-
-def ucitaj_large(ime_dat,rijec_id):
-    with open(ime_dat) as f:
-        dim = int(f.readline())
-        uniq = set()
-        # uniq.set(rijec_id)
-        parovi= []
-
-        lines = f.readlines()
+            pairs.append((i, j))
+    return load_matrix(dim, pairs)
 
 
-        for line in lines:
-            try:
-                i, j = line.split()
-            except:
-                continue
-            i = int(i)
-            j = int(j)
+def load_matrix(dim, pairs):
 
-            if rijec_id == i:
-                uniq.add(j)
-
-            if rijec_id == j:
-                uniq.add(i)
-
-            # if rijec_id == i or rijec_id == j:
-            #     parovi.append((i, j))
-            #     # w.write(f'{i} {j}\n')
-
-
-        for line in lines:
-            try:
-                i, j = line.split()
-            except:
-                continue
-            i = int(i)
-            j = int(j)
-
-            if i in uniq and j in uniq:
-                parovi.append((i,j))
-
-
-        print(uniq)
-        # print(parovi)
+    matrix = np.zeros((dim, dim))
+    for i, j in pairs:
+            matrix[i-1][j-1] = 1
+    return matrix
 
 
 
-        mapiranje= []
+def create_set_form_lines(lines, id):
+    uniq = set()
+    for line in lines:
+        try:
+            i, j = line.split()
+        except:
+            continue
+        i = int(i)
+        j = int(j)
 
-        for u in uniq:
-            mapiranje.append(u)
-        novi_parovi = []
-        for i,j in parovi:
-            novi_parovi.append((mapiranje.index(i)+1,mapiranje.index(j)+1))
+        if id == i :
+            uniq.add(j)
+        if  id == j:
+            uniq.add(i)
+
+    print("set", len(uniq))
+    return uniq
 
 
-    with open("novi" + str(rijec_id) + ".txt", "w+") as w:
-        for i, j in novi_parovi:
+def create_pairs_from_set(lines, S):
+    pairs = []
+
+    for line in lines:
+        try:
+            i, j = line.split()
+        except:
+            continue
+        i = int(i)
+        j = int(j)
+        if i in S and j in S:
+            pairs.append((i, j))
+    return pairs
+
+
+def create_new_pairs(mapping, pairs):
+    new_pairs = []
+    for i, j in pairs:
+        new_pairs.append(
+            (mapping.index(i) + 1, mapping.index(j) + 1))
+    return new_pairs
+
+
+def create_mapping(S):
+    mapping = []
+    for u in S:
+        mapping.append(u)
+    return mapping
+
+
+def write_new_pairs_to_file(filename, pairs):
+    with open(filename, "w+") as w:
+        for i, j in pairs:
             w.write(f'{i} {j}\n')
 
-    with open("novi" + str(rijec_id) + "rijeci.txt", "w+") as w, open("examples/e00/index.txt",encoding="ISO-8859-1") as f:
+
+def create_new_index(mapping):
+    with open("examples/e00/index.txt", encoding="ISO-8859-1") as f:
         lines = f.readlines()
-        print("mapiranje len: " ,len(mapiranje))
-        novi_index = [""] * 50
-        for i,line in enumerate(lines):
+        index = [""] * len(mapping)
+        for i, line in enumerate(lines):
             ind = i + 1
+            if ind in mapping:
+                index[mapping.index(ind)] = line
 
-            if ind in mapiranje:
+        return index
 
-                novi_index[mapiranje.index(ind)] = line
 
-        for i in novi_index:
+def write_new_index_file(filename, index):
+    with open(filename, "w+") as w:
+        for i in index:
             w.write(i)
 
 
+def load_for_word(ime_dat, rijec_id):
+    with open(ime_dat) as f:
+        lines = f.readlines()
+        s = create_set_form_lines(lines, rijec_id)
 
-    # print(mapiranje)
-    return len(uniq)
+        pairs = create_pairs_from_set(lines, s)
+
+    mapping = create_mapping(s)
+    new_pairs = create_new_pairs(mapping, pairs)
+
+    new_index = create_new_index(mapping)
+
+    # write_new_pairs_to_file("novi" + str(rijec_id) + ".txt", new_pairs)
+    # write_new_index_file("novi" + str(rijec_id) + "rijeci.txt", mapping)
+
+    return len(s), new_index, new_pairs
 
 
-
-
-
-def inter(limit,A,B):
+def inter(limit, A, B):
     X = np.ones((B.shape[0], A.shape[0]))
     if (limit < 1): raise ValueError
     # X = np.ones((5, 3))
     for i in range(limit):
         i = B.dot(X).dot(A.transpose())
         j = B.transpose().dot(X).dot(A)
-        X = i+j
+        X = i + j
         norm = np.linalg.norm(X, 'fro')
         X = X / norm
 
-    return np.around(X,4)
+    return np.around(X, 4)
+
 
 def main():
     example = input("Koji primjer:(npr e01) ")
 
+    if example == "e00":
+        # id = int(input("Id rijeci: "))
+        id = 87802
 
-    # if example == "e00":
-    #     # id = int(input("Id rijeci: "))
-    #     id = 27893
-    #     A = ucitaj_large("examples/" + example + "/dico.txt",id)
-    #     # print(A)
-    #     # B = ucitaj("examples/" + example + "/dico.txt")
-    #     print(A)
-    #     # p = inter(2, A, B)
-    #
-    #
-    #
-    # else:
-    #     itt = int(input("Broj iteracija: "))
-    #
-    #     A = ucitaj("examples/" + example + "/A.txt")
-    #     # print(A)
-    #     B = ucitaj("examples/" + example + "/B.txt")
-    #
-    #     p = inter(itt,A,B)
-    id = 27893
-    B = ucitaj("novi27893.txt")
-    A = ucitaj("B.txt")
-    p = inter(30, A, B)
+        dim, index, pairs = load_for_word("examples/" + example + "/dico.txt",
+                                          id)
+
+        print(pairs)
+
+        A = load_matrix(dim, pairs)
+        B = load_matrix_from_file("B.txt")
+
+        # print("Korijen sume kvadrata elemenata", np.sqrt(np.sum(np.square(p))))
+        p = inter(40, A, B)[1]
+
+        results = []
+
+        for i,l in enumerate(p):
+            results.append((l, index[i]))
+
+        results.sort(key=lambda x: x[0])
+
+        for i,k in results[::-1]:
+            print(i,k)
 
 
-    print(p)
-    print("Korijen sume kvadrata elemenata", np.sqrt(np.sum(np.square(p))))
+    else:
+        itt = int(input("Broj iteracija: "))
 
-    # najveci = []
-    #
-    # for i,k in enumerate(p[1]):
-    #     najveci.append((i,k))
-    #
-    # najveci.sort(key=lambda x: x[1])
-    #
-    #
-    # print("Max: " , np.max(p[1]))
-    # print(najveci)
+        A = load_matrix_from_file("examples/" + example + "/A.txt")
+        # print(A)
+        B = load_matrix_from_file("examples/" + example + "/B.txt")
+
+        p = inter(itt,A,B)
+
+        print(p)
+        print("Korijen sume kvadrata elemenata", np.sqrt(np.sum(np.square(p))))
+
 
 
 
