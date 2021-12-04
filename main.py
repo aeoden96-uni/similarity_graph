@@ -149,12 +149,17 @@ def main():
 
         results = []
 
+        keywords = ["the" , "or" ,"a" , "in" , "to" , "of" ,"which",
+                    "and","as","with", "for","any","it"]
+
         for i,l in enumerate(p):
             results.append((l, index[i]))
 
         results.sort(key=lambda x: x[0])
 
         for i,k in results[::-1]:
+            if k.rstrip() in keywords:
+                continue
             print(i,k)
 
 
