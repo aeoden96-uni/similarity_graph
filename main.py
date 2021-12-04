@@ -122,11 +122,9 @@ def load_for_word(ime_dat, word_id):
     return len(s), new_index, new_pairs
 
 
-def calculate(limit, matrix_a, matrix_b):
+def calculate(matrix_a, matrix_b):
     x = np.ones((matrix_b.shape[0], matrix_a.shape[0]))
     past = x.copy()
-    if limit < 1:
-        raise ValueError
 
     for i in range(50):
         i += 1
@@ -159,7 +157,7 @@ def main():
         matrix_second = load_matrix_from_file("examples/e00/B.txt")
 
         # print("Root of sum of squares", np.sqrt(np.sum(np.square(p))))
-        p = calculate(41, matrix_first, matrix_second)[1]
+        p = calculate(matrix_first, matrix_second)[1]
 
         results = []
 
@@ -207,7 +205,7 @@ def main():
         matrix_second = load_matrix_from_file(
             "examples/" + example + "/matrix_second.txt")
 
-        p = calculate(1, matrix_first, matrix_second)
+        p = calculate(matrix_first, matrix_second)
 
         print(p)
         # print("Root of sum of squares", np.sqrt(np.sum(np.square(p))))
