@@ -171,7 +171,8 @@ def main():
         results = []
 
         keywords = ["the" , "or" ,"a" , "in" , "to" , "of" ,"which",
-                    "and","as","with", "for","any","it","by", "is","are","than"]
+                    "and","as","with", "for","any","it","by", "is","are","than",
+                    "an", "from","into", "be"]
 
         for i,l in enumerate(p):
             results.append((l, index[i]))
