@@ -141,6 +141,16 @@ def calculate(matrix_a, matrix_b):
             past = x.copy()
 
 
+def getExceptions():
+    list = []
+    with open("config.txt") as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.rstrip()
+            list.append(line)
+    return list
+
+
 def main():
     example = input("Example (etc 'e01'): ")
 
@@ -162,33 +172,9 @@ def main():
 
         results = []
 
-        keywords = ["the",
-                    "or",
-                    "a",
-                    "in",
-                    "to",
-                    "of",
-                    "which",
-                    "and",
-                    "as",
-                    "with",
-                    "for",
-                    "any",
-                    "it",
-                    "by",
-                    "is",
-                    "are",
-                    "than",
-                    "an",
-                    "from",
-                    "into",
-                    "be",
-                    "s",
-                    "one",
-                    "on",
-                    "that",
-                    "at","other"]
+        keywords = getExceptions()
 
+        # print(keywords)
         for i, l in enumerate(p):
             results.append((l, index[i]))
 
@@ -219,3 +205,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    input("Press to exit...")
