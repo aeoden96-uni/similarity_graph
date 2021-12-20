@@ -146,6 +146,7 @@ def main():
 
     if example == "e00":
         word_id = find_word_id(input("Word: "))
+
         print("Word OK")
 
         dim, index, pairs = load_for_word("examples/" + example + "/dico.txt",
@@ -181,7 +182,12 @@ def main():
                     "an",
                     "from",
                     "into",
-                    "be"]
+                    "be",
+                    "s",
+                    "one",
+                    "on",
+                    "that",
+                    "at","other"]
 
         for i, l in enumerate(p):
             results.append((l, index[i]))
