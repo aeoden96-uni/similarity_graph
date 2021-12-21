@@ -62,29 +62,29 @@ In later text, it will just say  ```WORD(i)``` ```it is FIXED during all steps``
             if (i IS IN set & j IS IN set) → add it to selected pairs list
 
 
-| selected pairs |
-|----------------|
-| k5 k1          |
-| k1 k3          | 
-| k2 k752        |
-| k... k...      |
+| selected pairs                  |
+|---------------------------------|
+| k<sub>5</sub> k<sub>1</sub>     |
+| k<sub>1</sub> k<sub>3</sub>     | 
+| k<sub>2</sub> k<sub>752</sub>   |
+| k<sub>...</sub> k<sub>...</sub> |
 
 #### 2.e Now we use ```mapping``` we created to generate new ```pairs``` and new ```index```
-| pairs     | mapping | new pairs |
-|-----------|---------|-----------|
-| k5 k1     | →       | 5   1     |
-| k1 k3     | →       | 1  3      | 
-| k2 k752   | →       | 2 752     |
-| k... k... | →       | ...       |
+| pairs                             | mapping | new pairs |
+|-----------------------------------|---------|-----------|
+| k<sub>5</sub> k<sub>1</sub>       | →       | 5   1     |
+| k<sub>1</sub> k<sub>3</sub>       | →       | 1  3      | 
+| k<sub>2</sub> k<sub>752</sub>     | →       | 2 752     |
+| k<sub>...</sub> k<sub>...</sub>   | →       | ...       |
 
-| our set | dict        | mapping | new index      |
-|---------|-------------|---------|----------------|
-| k1      | ```house``` | →       | 1. ```house``` |
-| k2      | ```lake```  | →       | 2.  ```lake``` |
-| k3      | ```tea```   | →       | 3. ```tea```   |
-| ...     |             | →       |                |
+| our set       | dict                                | mapping | new index      |
+|---------------|-------------------------------------|---------|----------------|
+| k<sub>1</sub> | ```house```<sub>k<sub>1</sub></sub> | →       | 1. ```house``` |
+| k<sub>2</sub> | ```lake```<sub>k<sub>2</sub></sub>  | →       | 2.  ```lake``` |
+| k<sub>3</sub> | ```tea``` <sub>k<sub>3</sub></sub>  | →       | 3. ```tea```   |
+| ...           |                                     | →       |                |
 
-#### 3. This is our input for the algorithm: ```new pairs``` and new ```new index```:
+#### 3. This is our input for the algorithm: ```new pairs``` and new ```new index```
     new index: all words that are related to our fixed word WORD(i)
     new pairs: all pairs i,j that are related,and also that WORD(i) 
                     is related to both
