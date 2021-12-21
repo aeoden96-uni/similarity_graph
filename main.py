@@ -9,7 +9,8 @@ def find_word_id(word):
             if word.rstrip() == line.rstrip():
                 return i + 1
 
-        raise EOFError
+        return -1
+        # raise EOFError
 
 
 def load_matrix_from_file(filename):
@@ -39,6 +40,7 @@ def create_set_form_lines(lines, word_id):
             i, j = line.split()
         except ValueError:
             continue
+
         i = int(i)
         j = int(j)
 
@@ -134,75 +136,117 @@ def calculate(matrix_a, matrix_b):
         norm = np.linalg.norm(x, 'fro')
         x = x / norm
 
-        # print(i, np.around(x, 4)[0][0])
+
         if i % 2 == 0:
             if np.allclose(past, x, rtol=1e-05):
                 return np.around(x, 4)
             past = x.copy()
 
 
-def getExceptions():
-    list = []
+def get_excluded_words():
+    exception_list = []
     with open("config.txt") as f:
         lines = f.readlines()
         for line in lines:
             line = line.rstrip()
-            list.append(line)
-    return list
+            exception_list.append(line)
+    return exception_list
+
+
+def run_main_example(word_id, debug=False):
+    dim, index, pairs = load_for_word("examples/e00/dico.txt",
+                                      word_id)
+
+    if debug:
+        print("Pairs", pairs)
+
+    matrix_first = load_matrix(dim, pairs)
+    matrix_second = load_matrix_from_file("examples/e00/B.txt")
+
+    p = calculate(matrix_first, matrix_second)[1]
+
+    if debug:
+        print("Root of sum of squares", np.sqrt(np.sum(np.square(p))))
+
+    results = []
+    keywords = get_excluded_words()
+
+    if debug:
+        print("keywords", keywords)
+
+    for i, l in enumerate(p):
+        results.append((l, index[i]))
+
+    results.sort(key=lambda x: x[0])
+
+    top_results = 10
+    for i, k in results[::-1]:
+        if k.rstrip() in keywords:
+            continue
+        if top_results <= 0:
+            break
+        print(i, k, end="")
+        top_results -= 1
+
+
+def mat_print(mat, fmt="g"):
+    if mat is None:
+        return
+    col_maxes = [max([len(("{:"+fmt+"}").format(x)) for x in col])
+                 for col in mat.T]
+    for x in mat:
+        for i, y in enumerate(x):
+            print(("{:"+str(col_maxes[i])+fmt+"}").format(y), end="  ")
+        print("")
+
+
+def run_mini_example(example, debug=False):
+    matrix_first = load_matrix_from_file(
+        "examples/" + example + "/A.txt")
+    if debug:
+        mat_print(matrix_first)
+
+    matrix_second = load_matrix_from_file(
+        "examples/" + example + "/B.txt")
+
+    p = calculate(matrix_first, matrix_second)
+
+    mat_print(p)
+    if debug and p is not None:
+        print("Root of sum of squares", np.sqrt(np.sum(np.square(p))))
 
 
 def main():
-    example = input("Example (etc 'e01'): ")
+    while True:
+        example = input("Example (dict,e01,e02... 0 to exit): ")
+        if example == "0":
+            return
+        if example == "dict":
+            while True:
+                new_word = input("Word (0 to exit): ")
 
-    if example == "e00":
-        word_id = find_word_id(input("Word: "))
+                if new_word == "0":
+                    break
 
-        print("Word OK")
+                word_id = find_word_id(new_word)
 
-        dim, index, pairs = load_for_word("examples/" + example + "/dico.txt",
-                                          word_id)
+                if word_id == -1:
+                    print("Word not OK...exiting")
+                    return
+                print("Word OK")
 
-        # print(pairs)
 
-        matrix_first = load_matrix(dim, pairs)
-        matrix_second = load_matrix_from_file("examples/e00/B.txt")
+                run_main_example(word_id)
 
-        # print("Root of sum of squares", np.sqrt(np.sum(np.square(p))))
-        p = calculate(matrix_first, matrix_second)[1]
+                print()
 
-        results = []
 
-        keywords = getExceptions()
 
-        # print(keywords)
-        for i, l in enumerate(p):
-            results.append((l, index[i]))
-
-        results.sort(key=lambda x: x[0])
-
-        max_iter = 10
-        for i, k in results[::-1]:
-            if k.rstrip() in keywords:
-                continue
-            if max_iter <= 0:
-                break
-            print(i, k, end="")
-            max_iter -= 1
-
-    else:
-
-        matrix_first = load_matrix_from_file(
-            "examples/" + example + "/matrix_first.txt")
-        # print(matrix_first)
-        matrix_second = load_matrix_from_file(
-            "examples/" + example + "/matrix_second.txt")
-
-        p = calculate(matrix_first, matrix_second)
-
-        print(p)
-        # print("Root of sum of squares", np.sqrt(np.sum(np.square(p))))
+        else:
+            run_mini_example(example)
+        print()
 
 
 if __name__ == '__main__':
     main()
-    input("Press to exit...")
+    input("Press to exit")
