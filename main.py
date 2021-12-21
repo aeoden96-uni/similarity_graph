@@ -1,11 +1,14 @@
 import numpy as np
-
 from helper_functions import mat_print
-from read import read_lines, read_matrix_pairs
+from read import get_words_generator, get_pairs_generator
+
+DICT_TXT = "examples/e00/dico.txt"
+
+INDEX_TXT = "examples/e00/index.txt"
 
 
 def find_word_id(user_word):
-    words = read_lines("examples/e00/index.txt", "ISO-8859-1")
+    words = get_words_generator("examples/e00/index.txt", "ISO-8859-1")
     for i, word in enumerate(words):
         if word == user_word.rstrip():
             return i + 1
@@ -22,16 +25,16 @@ def load_matrix(dim, pairs_gen):
 
 def load_matrix_from_file(filename, pairs_gen=None):
     if pairs_gen is None:
-        pairs_gen = read_matrix_pairs(filename)
+        pairs_gen = get_pairs_generator(filename)
     dim = next(pairs_gen)
-    # pairs = [i for i in pairs_gen]
     return load_matrix(dim, pairs_gen)
 
 
-def create_set_from_word_id(file_name, word_id):
-    pairs = read_matrix_pairs(file_name, is_matrix=False)
+def create_set_from_word_id(word_id):
+    pairs_gen = get_pairs_generator(DICT_TXT, has_dimension=True)
+    dim = next(pairs_gen)
     uniq = set()
-    for i, j in pairs:
+    for i, j in pairs_gen:
         i = int(i)
         j = int(j)
 
@@ -43,8 +46,9 @@ def create_set_from_word_id(file_name, word_id):
     return uniq
 
 
-def create_pairs_from_set(file_name, word_set):
-    pairs_gen = read_matrix_pairs(file_name, is_matrix=False)
+def select_pairs(file_name, word_set):
+    pairs_gen = get_pairs_generator(DICT_TXT, has_dimension=True)
+    dim = next(pairs_gen)
 
     pairs = [(i, j) for (i, j) in pairs_gen
              if i in word_set and j in word_set]
@@ -59,29 +63,24 @@ def create_new_pairs(mapping, pairs):
 
 
 def create_new_index(mapping):
-    words = read_lines("examples/e00/index.txt")
+    words = get_words_generator(INDEX_TXT)
     index = [""] * len(mapping)
     for i, word in enumerate(words):
-        ind = i + 1
-        if ind in mapping:
-            index[mapping.index(ind)] = word
+        if i + 1 in mapping:
+            index[mapping.index(i+1)] = word
     return index
 
 
-def generate_new_index_and_mapping(file_name, word_id):
-    word_set = create_set_from_word_id(file_name, word_id)
-    # mapping:    0      1      2    ...
-    #           word1  word2  word3  ...
+def generate_new_index_and_mapping(word_id):
+    word_set = create_set_from_word_id(word_id)
+
     mapping = list(word_set)
 
-    pairs = create_pairs_from_set(file_name, word_set)
+    # selected pairs
+    selected_pairs = select_pairs(DICT_TXT, word_set)
 
-    print(len(pairs))
-
-    new_pairs = create_new_pairs(mapping, pairs)
+    new_pairs = create_new_pairs(mapping, selected_pairs)
     new_index = create_new_index(mapping)
-
-    print(len(new_pairs))
 
     # write_new_pairs_to_file("new" + str(word_id) + ".txt", new_pairs)
     # write_new_index_file("new" + str(word_id) + "words.txt", mapping)
@@ -108,18 +107,12 @@ def calculate(matrix_a, matrix_b):
 
 
 def get_excluded_words():
-    exception_list = []
-    with open("config.txt") as f:
-        lines = f.readlines()
-        for line in lines:
-            line = line.rstrip()
-            exception_list.append(line)
-    return exception_list
+    words = get_words_generator("config.txt")
+    return [i for i in words]
 
 
 def run_main_example(word_id, debug=False):
-    dim, index, pairs = generate_new_index_and_mapping("examples/e00/dico.txt",
-                                                       word_id)
+    dim, index, pairs = generate_new_index_and_mapping(word_id)
 
     if debug:
         print("Pairs", pairs)

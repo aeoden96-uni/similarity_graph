@@ -1,4 +1,4 @@
-def read_lines(file_path, encoding="ISO-8859-1"):
+def get_words_generator(file_path, encoding="ISO-8859-1"):
     with open(file_path, encoding=encoding) as f:
         lines = f.readlines()
         for line in lines:
@@ -6,9 +6,9 @@ def read_lines(file_path, encoding="ISO-8859-1"):
             yield line
 
 
-def read_matrix_pairs(filename, is_matrix=True):
-    pairs = read_lines(filename)
-    if is_matrix:
+def get_pairs_generator(filename, has_dimension=True):
+    pairs = get_words_generator(filename)
+    if has_dimension:
         dim = int(next(pairs))
         yield dim
 
