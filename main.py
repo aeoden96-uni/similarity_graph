@@ -1,46 +1,40 @@
 import numpy as np
 
-
-def find_word_id(word):
-    with open("examples/e00/index.txt", encoding="ISO-8859-1") as f:
-        lines = f.readlines()
-
-        for i, line in enumerate(lines):
-            if word.rstrip() == line.rstrip():
-                return i + 1
-
-        return -1
-        # raise EOFError
+from helper_functions import mat_print
+from read import read_lines, read_matrix_pairs
 
 
-def load_matrix_from_file(filename):
-    with open(filename) as f:
-        pairs = []
-        dim = int(f.readline())
-        lines = f.readlines()
-        for line in lines:
-            i, j = line.split()
-            i = int(i)
-            j = int(j)
-            pairs.append((i, j))
-    return load_matrix(dim, pairs)
+def find_word_id(user_word):
+    words = read_lines("examples/e00/index.txt", "ISO-8859-1")
+    for i, word in enumerate(words):
+        if word == user_word.rstrip():
+            return i + 1
+    return -1
 
-
-def load_matrix(dim, pairs):
+#create_matrix_from_pairs_gen
+def load_matrix(dim, pairs_gen):
     matrix = np.zeros((dim, dim))
-    for i, j in pairs:
+    for i, j in pairs_gen:
         matrix[i - 1][j - 1] = 1
     return matrix
 
 
-def create_set_form_lines(lines, word_id):
-    uniq = set()
-    for line in lines:
-        try:
-            i, j = line.split()
-        except ValueError:
-            continue
+def load_matrix_from_file(filename, pairs_gen=None):
+    if pairs_gen is None:
+        pairs_gen = read_matrix_pairs(filename)
+    dim = next(pairs_gen)
+    # pairs = [i for i in pairs_gen]
+    return load_matrix(dim, pairs_gen)
 
+
+def create_set_from_word_id(file_name, word_id):
+    pairs = read_matrix_pairs(file_name,is_matrix=False)
+    uniq = set()
+    for i, j in pairs:
+        # try:
+        #     i, j = line.split()
+        # except ValueError:
+        #     continue
         i = int(i)
         j = int(j)
 
@@ -52,16 +46,12 @@ def create_set_form_lines(lines, word_id):
     return uniq
 
 
-def create_pairs_from_set(lines, word_set):
+def create_pairs_from_set(file_name, word_set):
     pairs = []
+    pairs_gen = read_matrix_pairs(file_name,is_matrix=False)
 
-    for line in lines:
-        try:
-            i, j = line.split()
-        except ValueError:
-            continue
-        i = int(i)
-        j = int(j)
+    for i, j in pairs_gen:
+
         if i in word_set and j in word_set:
             pairs.append((i, j))
     return pairs
@@ -76,16 +66,7 @@ def create_new_pairs(mapping, pairs):
 
 
 def create_mapping(word_set):
-    mapping = []
-    for u in word_set:
-        mapping.append(u)
-    return mapping
-
-
-def write_new_pairs_to_file(filename, pairs):
-    with open(filename, "w+") as w:
-        for i, j in pairs:
-            w.write(f'{i} {j}\n')
+    return [i for i in word_set]
 
 
 def create_new_index(mapping):
@@ -100,18 +81,10 @@ def create_new_index(mapping):
         return index
 
 
-def write_new_index_file(filename, index):
-    with open(filename, "w+") as w:
-        for i in index:
-            w.write(i)
+def generate_new_index_and_mapping(ime_dat, word_id):
 
-
-def load_for_word(ime_dat, word_id):
-    with open(ime_dat) as f:
-        lines = f.readlines()
-        s = create_set_form_lines(lines, word_id)
-
-        pairs = create_pairs_from_set(lines, s)
+    s = create_set_from_word_id(ime_dat, word_id)
+    pairs = create_pairs_from_set(ime_dat, s)
 
     mapping = create_mapping(s)
     new_pairs = create_new_pairs(mapping, pairs)
@@ -154,8 +127,8 @@ def get_excluded_words():
 
 
 def run_main_example(word_id, debug=False):
-    dim, index, pairs = load_for_word("examples/e00/dico.txt",
-                                      word_id)
+    dim, index, pairs = generate_new_index_and_mapping("examples/e00/dico.txt",
+                                                       word_id)
 
     if debug:
         print("Pairs", pairs)
@@ -187,17 +160,6 @@ def run_main_example(word_id, debug=False):
             break
         print(i, k, end="")
         top_results -= 1
-
-
-def mat_print(mat, fmt="g"):
-    if mat is None:
-        return
-    col_maxes = [max([len(("{:"+fmt+"}").format(x)) for x in col])
-                 for col in mat.T]
-    for x in mat:
-        for i, y in enumerate(x):
-            print(("{:"+str(col_maxes[i])+fmt+"}").format(y), end="  ")
-        print("")
 
 
 def run_mini_example(example, debug=False):
@@ -235,12 +197,9 @@ def main():
                     return
                 print("Word OK")
 
-
                 run_main_example(word_id)
 
                 print()
-
-
 
         else:
             run_mini_example(example)
