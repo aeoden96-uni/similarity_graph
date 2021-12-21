@@ -11,7 +11,8 @@ def find_word_id(user_word):
             return i + 1
     return -1
 
-#create_matrix_from_pairs_gen
+
+# create_matrix_from_pairs_gen
 def load_matrix(dim, pairs_gen):
     matrix = np.zeros((dim, dim))
     for i, j in pairs_gen:
@@ -28,13 +29,9 @@ def load_matrix_from_file(filename, pairs_gen=None):
 
 
 def create_set_from_word_id(file_name, word_id):
-    pairs = read_matrix_pairs(file_name,is_matrix=False)
+    pairs = read_matrix_pairs(file_name, is_matrix=False)
     uniq = set()
     for i, j in pairs:
-        # try:
-        #     i, j = line.split()
-        # except ValueError:
-        #     continue
         i = int(i)
         j = int(j)
 
@@ -47,54 +44,49 @@ def create_set_from_word_id(file_name, word_id):
 
 
 def create_pairs_from_set(file_name, word_set):
-    pairs = []
-    pairs_gen = read_matrix_pairs(file_name,is_matrix=False)
+    pairs_gen = read_matrix_pairs(file_name, is_matrix=False)
 
-    for i, j in pairs_gen:
+    pairs = [(i, j) for (i, j) in pairs_gen
+             if i in word_set and j in word_set]
 
-        if i in word_set and j in word_set:
-            pairs.append((i, j))
     return pairs
 
 
 def create_new_pairs(mapping, pairs):
-    new_pairs = []
-    for i, j in pairs:
-        new_pairs.append(
-            (mapping.index(i) + 1, mapping.index(j) + 1))
+    new_pairs = [(mapping.index(i) + 1, mapping.index(j) + 1)
+                 for (i, j) in pairs]
     return new_pairs
 
 
-def create_mapping(word_set):
-    return [i for i in word_set]
-
-
 def create_new_index(mapping):
-    with open("examples/e00/index.txt", encoding="ISO-8859-1") as f:
-        lines = f.readlines()
-        index = [""] * len(mapping)
-        for i, line in enumerate(lines):
-            ind = i + 1
-            if ind in mapping:
-                index[mapping.index(ind)] = line
-
-        return index
+    words = read_lines("examples/e00/index.txt")
+    index = [""] * len(mapping)
+    for i, word in enumerate(words):
+        ind = i + 1
+        if ind in mapping:
+            index[mapping.index(ind)] = word
+    return index
 
 
-def generate_new_index_and_mapping(ime_dat, word_id):
+def generate_new_index_and_mapping(file_name, word_id):
+    word_set = create_set_from_word_id(file_name, word_id)
+    # mapping:    0      1      2    ...
+    #           word1  word2  word3  ...
+    mapping = list(word_set)
 
-    s = create_set_from_word_id(ime_dat, word_id)
-    pairs = create_pairs_from_set(ime_dat, s)
+    pairs = create_pairs_from_set(file_name, word_set)
 
-    mapping = create_mapping(s)
+    print(len(pairs))
+
     new_pairs = create_new_pairs(mapping, pairs)
-
     new_index = create_new_index(mapping)
+
+    print(len(new_pairs))
 
     # write_new_pairs_to_file("new" + str(word_id) + ".txt", new_pairs)
     # write_new_index_file("new" + str(word_id) + "words.txt", mapping)
 
-    return len(s), new_index, new_pairs
+    return len(word_set), new_index, new_pairs
 
 
 def calculate(matrix_a, matrix_b):
@@ -108,7 +100,6 @@ def calculate(matrix_a, matrix_b):
         x = left_hand + right_hand
         norm = np.linalg.norm(x, 'fro')
         x = x / norm
-
 
         if i % 2 == 0:
             if np.allclose(past, x, rtol=1e-05):
@@ -158,7 +149,7 @@ def run_main_example(word_id, debug=False):
             continue
         if top_results <= 0:
             break
-        print(i, k, end="")
+        print(i, k)
         top_results -= 1
 
 
