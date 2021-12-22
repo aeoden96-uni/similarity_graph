@@ -84,8 +84,7 @@ In later text, it will just say  ```WORD(i)``` ```it is FIXED during all steps``
 | k<sub>3</sub> | ```tea``` <sub>k<sub>3</sub></sub>  | →       | 3. ```tea```   |
 | ...           |                                     | →       |                |
 
-#### 3. This is our input for the algorithm: ```new pairs``` and new ```new index```
     new index: all words that are related to our fixed word WORD(i)
     new pairs: all pairs i,j that are related,and also that WORD(i) 
                     is related to both
-    
+#### 4.We create adjacency matrix from new given pairs    
