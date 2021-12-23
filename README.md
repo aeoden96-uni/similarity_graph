@@ -29,7 +29,7 @@ Collaborators:
 In later text, it will just say  ```WORD(i)``` ```it is FIXED during all steps``` 
 #### 2.b Find a set of all words that are connected in dictionary to  ```i```
     Goal: we want a set of all unique words that are related to our fixed word
-|                       |                  | new set        |
+| all pairs             |                  | new set        |
 |-----------------------|:-----------------|----------------|
 | ```i``` k1            | →                | k<sub>1</sub>  |
 | k<sub>1</sub> ```i``` | (already in set) | /              | 
@@ -70,6 +70,13 @@ In later text, it will just say  ```WORD(i)``` ```it is FIXED during all steps``
 | k<sub>...</sub> k<sub>...</sub> |
 
 #### 2.e Now we use ```mapping``` we created to generate new ```pairs``` and new ```index```
+| our set       | dict                                | mapping | new index      |
+|---------------|-------------------------------------|---------|----------------|
+| k<sub>1</sub> | ```house```<sub>k<sub>1</sub></sub> | →       | 1. ```house``` |
+| k<sub>2</sub> | ```lake```<sub>k<sub>2</sub></sub>  | →       | 2.  ```lake``` |
+| k<sub>3</sub> | ```tea``` <sub>k<sub>3</sub></sub>  | →       | 3. ```tea```   |
+| ...           |                                     | →       |                |
+
 | pairs                             | mapping | new pairs |
 |-----------------------------------|---------|-----------|
 | k<sub>5</sub> k<sub>1</sub>       | →       | 5   1     |
@@ -77,12 +84,7 @@ In later text, it will just say  ```WORD(i)``` ```it is FIXED during all steps``
 | k<sub>2</sub> k<sub>752</sub>     | →       | 2 752     |
 | k<sub>...</sub> k<sub>...</sub>   | →       | ...       |
 
-| our set       | dict                                | mapping | new index      |
-|---------------|-------------------------------------|---------|----------------|
-| k<sub>1</sub> | ```house```<sub>k<sub>1</sub></sub> | →       | 1. ```house``` |
-| k<sub>2</sub> | ```lake```<sub>k<sub>2</sub></sub>  | →       | 2.  ```lake``` |
-| k<sub>3</sub> | ```tea``` <sub>k<sub>3</sub></sub>  | →       | 3. ```tea```   |
-| ...           |                                     | →       |                |
+
 
     new index: all words that are related to our fixed word WORD(i)
     new pairs: all pairs i,j that are related,and also that WORD(i) 

@@ -10,15 +10,6 @@ def find_word_id(user_word):
     return words.index(user_word) + 1
 
 
-def select_pairs(index_set):
-    pairs_gen = _get_pairs_generator(DICT_TXT, skip_dimension=True)
-
-    pairs = [(i, j) for (i, j) in pairs_gen
-             if i in index_set and j in index_set]
-
-    return pairs
-
-
 def create_set(word_id):
     # word_id    j     --> add j
     #    i    word_id  --> add i
@@ -34,6 +25,19 @@ def create_set(word_id):
     return uniq
 
 
+def create_mapping(index_set):
+    return list(index_set)
+
+
+def select_pairs(index_set):
+    pairs_gen = _get_pairs_generator(DICT_TXT, skip_dimension=True)
+
+    pairs = [(i, j) for (i, j) in pairs_gen
+             if i in index_set and j in index_set]
+
+    return pairs
+
+
 def create_new_index(mapping):
     old_index = list(_get_words_generator(INDEX_TXT))
     return [old_index[i - 1] for i in mapping]
@@ -47,7 +51,7 @@ def create_new_pairs(mapping, pairs):
 
 def new_index_and_mapping(word_id):
     index_set = create_set(word_id)
-    mapping = list(index_set)
+    mapping = create_mapping(index_set)
 
     selected_pairs = select_pairs(index_set)
 
